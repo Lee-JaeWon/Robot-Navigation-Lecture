@@ -9,5 +9,5 @@ Semester : 2022 Fall
 * Assignment-1 : [PID Wall Following : Husky Robot](https://github.com/Lee-JaeWon/Robot-Navigation-Lecture/blob/main/wall_following_assignment/python/wall_follower.py)<br>
 * Assignment-2 : <br>
 
-### Mini Project
-* MiniProject #1 :
+### Term Project
+* Term Project #1 : [Astar Algorithm Implementation](https://github.com/Lee-JaeWon/Robot-Navigation-Lecture/blob/main/Astar%2CRRT/astar_planner.py)
