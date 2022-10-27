@@ -10,4 +10,5 @@ Semester : 2022 Fall
 * Assignment-2 : <br>
 
 ### Term Project
-* Term Project #1 : [Astar Algorithm Implementation](https://github.com/Lee-JaeWon/Robot-Navigation-Lecture/blob/main/Astar%2CRRT/astar_planner.py)
+* Term Project #1-1 : [Astar Algorithm Implementation](https://github.com/Lee-JaeWon/Robot-Navigation-Lecture/blob/main/Astar%2CRRT/astar_planner.py)
+* Term Project #1-2 : [RRT Algorithm Implementation](https://github.com/Lee-JaeWon/Robot-Navigation-Lecture/blob/main/Astar%2CRRT/rrt_planner.py)
