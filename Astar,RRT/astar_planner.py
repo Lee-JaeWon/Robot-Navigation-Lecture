@@ -163,22 +163,24 @@ class AStarPlanner(object):
                 if evaluated[ns.x, ns.y] == 1:
                     continue
 
-                 # for nodes/states that we're visiting for first time, calculate and record its distance into alt
-                # transaction distance = from start to current, the 'G'
-                transition_distance = dist_to_come[s.x, s.y] + sqrt((ns.x - start_state.x)**2 + (ns.y - start_state.y)**2)
+                # For G(x) : currentNode.g + distance between child and current
+                transition_distance = sqrt((ns.x - start_state.x)**2 + (ns.y - start_state.y)**2) 
+                G = dist_to_come[s.x, s.y] + transition_distance # g(x) : 현재 노드에서 출발 지점까지의 총 Cost
+                
+                # For H(x) : distance from child to end
+                heuristic = sqrt((ns.x - dest_state.x)**2 + (ns.y - dest_state.y)**2) # h(x) : 이웃 노드에서 목적지까지의 거리
 
-                heuristic = sqrt((ns.x - dest_state.x)**2 + (ns.y - dest_state.y)**2) # h(x) : 현재 노드에서 목적지까지의 거리
-                total_cost = transition_distance + heuristic # f(x) = g(x) + h(x)
+                # Fop F(x) : G(x) + H(x)
+                F = G + heuristic
 
-                alternative_dist_to_come_to_ns = dist_to_come[s.x, s.y] + total_cost
+                # 인접 노드까지의 거리 : temporarily
+                alternative_dist_to_come_to_ns = dist_to_come[s.x, s.y] + sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2)
 
-                # if the state ns has not been visited before or we just found a shorter path
-                # to visit it then update its priority in the queue, and also its
-                # distance to come and its parent
-                if (ns not in Q) or (dist_to_come[s.x, s.y] + sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2) < dist_to_come[ns.x, ns.y]):
-                    dist_to_come[ns.x, ns.y] = dist_to_come[s.x, s.y] + sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2)
-                    Q[ns] = alternative_dist_to_come_to_ns
-                    parents[ns] = s
+                # 이전에 방문하지 않은 state 이거나 더 짧은 경로를 찾은 경우
+                if (ns not in Q) or (alternative_dist_to_come_to_ns < dist_to_come[ns.x, ns.y]):
+                    dist_to_come[ns.x, ns.y] = alternative_dist_to_come_to_ns # 새로 찾은 더 짧은 거리와
+                    Q[ns] = alternative_dist_to_come_to_ns # 우선 순위,
+                    parents[ns] = s # 부모를 업데이트한다.
 
         return [start_state]
 
