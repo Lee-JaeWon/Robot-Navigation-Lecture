@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding:utf-8 -*-
 import sys
 import time
 import pickle
@@ -124,10 +125,13 @@ class RRTPlanner(object):
         # and {0, ..., rows -1} respectively
         distance_rand_nearest = sqrt((s_rand.x - s_nearest.x)**2 + (s_rand.y - s_nearest.y)**2)
         
-        if (distance_rand_nearest <= max_radius):
+        # rand(무작위 샘플점)을 발생시킨 후, 가장 가까운 노드 near를 찾는다.
+        # near에서 rand 방향으로 연결한 직선상에 일정한 거리 만큼 떨어진 점을 q_new로 선정
+
+        if (distance_rand_nearest <= max_radius): # 최대 도달거리보다 작으면 랜덤 값 그대로 선정
             x = s_rand.x
             y = s_rand.y
-        else:
+        else: # 최대 도달거리보다 크면
             t = max_radius / distance_rand_nearest
             x = int((1-t)*s_nearest.x + t*s_rand.x)
             y = int((1-t)*s_nearest.y + t*s_rand.y)
@@ -153,9 +157,12 @@ class RRTPlanner(object):
             # away on the line from s_from to s_new is free or not. If not free return False
             distance = sqrt((s_from.x - s_to.x)**2 + (s_from.y - s_to.y)**2)
             distance_interpol = float(i) / max_checks * distance
+
             x = int(s_from.x + distance_interpol)
             y = int(s_from.y + distance_interpol)
+
             interpolated_state = State(x,y,s_from)
+            
             if not self.state_is_free(interpolated_state):
                 return False
             
@@ -169,6 +176,8 @@ class RRTPlanner(object):
         if dest_state is reachable from start_state. Otherwise returns [start_state].
         Assume both source and destination are in free space.
         """
+
+        # 시작 지점과 종료 지점에 장애물이 있는 지점인지 아닌지 확인
         assert (self.state_is_free(start_state))
         assert (self.state_is_free(dest_state))
 
@@ -185,14 +194,12 @@ class RRTPlanner(object):
 
             # TODO: Use the methods of this class as in the slides to
             # compute s_new
-            # s_nearest = None
-            # s_new = None
             
-            s_rand = self.sample_state()
-            s_nearest = self.find_closest_state(tree_nodes, s_rand)
-            s_new = self.steer_towards(s_nearest, s_rand, max_steering_radius)
+            s_rand = self.sample_state() # 맵 상에서의 랜덤한 점들의 집합
+            s_nearest = self.find_closest_state(tree_nodes, s_rand) # 가장 가까운 state 찾기
+            s_new = self.steer_towards(s_nearest, s_rand, max_steering_radius) # nearest에서 rand 방향으로 연결한 직선상에 있는 일정 거리에 있는 점을 s_new로 선정
 
-            if self.path_is_obstacle_free(s_nearest, s_new):
+            if self.path_is_obstacle_free(s_nearest, s_new): # 새로운 점이 장애물과 충돌하는 점이 아닌지 판단
                 tree_nodes.add(s_new)
                 s_nearest.children.append(s_new)
 
@@ -204,16 +211,15 @@ class RRTPlanner(object):
                     break
                 
                 # TODO:plot the new node and edge
-                cv2.circle(img, (s_new.x, s_new.y), 2, (0,0,0))
+                cv2.circle(img, (s_new.x, s_new.y), 3, (255,0,0))
                 cv2.line(img, (s_nearest.x, s_nearest.y), (s_new.x, s_new.y), (255,0,0))
-
 
             # Keep showing the image for a bit even
             # if we don't add a new node and edge
             cv2.imshow('image', img)
             cv2.waitKey(10)
 
-        draw_plan(img, plan, bgr=(0,0,255), thickness=2)
+        draw_plan_rrt(img, plan, bgr=(0,0,255), thickness=3)
         cv2.waitKey(0)
         return [start_state]
 
@@ -231,12 +237,15 @@ if __name__ == "__main__":
 
     rrt = RRTPlanner(world)
 
+    # 시작 지점과 종료 지점
     start_state = State(10, 10, None)
-    dest_state = State(300, 600, None)
+    dest_state = State(300, 500, None)
 
-    max_num_steps = 1000     # max number of nodes to be added to the tree 
-    max_steering_radius = 30 # pixels
-    dest_reached_radius = 50 # pixels
+    # 샘플링 개수가 충분하지 않다면 존재하는 경로를 찾지 못할 수도 있다.
+    max_num_steps = 2500 # max number of nodes to be added to the tree     
+    max_steering_radius = 20 # pixels # max_steering_radius값이 너무 크면 작은 장애물를 고려 못할 수 있다.
+    dest_reached_radius = 40 # pixels
+    
     plan = rrt.plan(start_state,
                     dest_state,
                     max_num_steps,

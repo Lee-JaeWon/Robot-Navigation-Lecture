@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding:utf-8 -*-
 import sys
 import time
 import pickle
@@ -162,16 +163,21 @@ class AStarPlanner(object):
                 if evaluated[ns.x, ns.y] == 1:
                     continue
 
-                
-                transition_distance = sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2)
-                alternative_dist_to_come_to_ns = dist_to_come[s.x, s.y] + transition_distance
+                 # for nodes/states that we're visiting for first time, calculate and record its distance into alt
+                # transaction distance = from start to current, the 'G'
+                transition_distance = dist_to_come[s.x, s.y] + sqrt((ns.x - start_state.x)**2 + (ns.y - start_state.y)**2)
+
+                heuristic = sqrt((ns.x - dest_state.x)**2 + (ns.y - dest_state.y)**2) # h(x) : 현재 노드에서 목적지까지의 거리
+                total_cost = transition_distance + heuristic # f(x) = g(x) + h(x)
+
+                alternative_dist_to_come_to_ns = dist_to_come[s.x, s.y] + total_cost
 
                 # if the state ns has not been visited before or we just found a shorter path
                 # to visit it then update its priority in the queue, and also its
                 # distance to come and its parent
-                if (ns not in Q) or (alternative_dist_to_come_to_ns < dist_to_come[ns.x, ns.y]):
+                if (ns not in Q) or (dist_to_come[s.x, s.y] + sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2) < dist_to_come[ns.x, ns.y]):
+                    dist_to_come[ns.x, ns.y] = dist_to_come[s.x, s.y] + sqrt((ns.x - s.x)**2 + (ns.y - s.y)**2)
                     Q[ns] = alternative_dist_to_come_to_ns
-                    dist_to_come[ns.x, ns.y] = alternative_dist_to_come_to_ns
                     parents[ns] = s
 
         return [start_state]
