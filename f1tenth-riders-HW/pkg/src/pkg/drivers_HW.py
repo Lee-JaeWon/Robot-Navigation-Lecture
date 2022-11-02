@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import numpy as np
 
 
@@ -31,16 +32,31 @@ class GapFollower:
         """ Return the start index & end index of the max gap in free_space_ranges
             free_space_ranges: list of LiDAR data which contains a 'bubble' of zeros
         """
+
+        # numpy mask 배열 사용
+        # 센서가 데이터를 기록하지 못하거나 유효하지 않은 값을 기록하는 등이 있다.
+        # numpy.ma 모듈은 마스크 배열을 도입하여 이런 문제를 해결할 편리한 방법을 제시
+
         # mask the bubble
+        # 0을 제외한 값 -> masked
         masked = np.ma.masked_where(free_space_ranges == 0, free_space_ranges)
+
         # get a slice for each contigous sequence of non-bubble data
+        # 주어진 축을 따라 마스킹된 배열에서 마스킹되지 않은 연속 데이터를 찾는다.
         slices = np.ma.notmasked_contiguous(masked)
+        # print slices -> [slice(0, 649, None), slice(809, 810, None)]
+        
+        # 최대 길이 계산
         max_len = slices[0].stop - slices[0].start
+        
         chosen_slice = slices[0]
         # I think we will only ever have a maximum of 2 slices but will handle an
         # indefinitely sized list for portablility
+        
+        # slices[0] 이외에 더 큰 length가 있다면 교환
         for sl in slices[1:]:
             sl_len = sl.stop - sl.start
+
             if sl_len > max_len:
                 max_len = sl_len
                 chosen_slice = sl
@@ -54,6 +70,8 @@ class GapFollower:
         """
         # do a sliding window average over the data in the max gap, this will
         # help the car to avoid hitting corners
+
+        # ranges와 convolution한 length 출력값 반환 : 'same' 모드
         averaged_max_gap = np.convolve(ranges[start_i:end_i], np.ones(self.BEST_POINT_CONV_SIZE), 'same') / self.BEST_POINT_CONV_SIZE
 
         return averaged_max_gap.argmax() + start_i
@@ -61,8 +79,17 @@ class GapFollower:
     def get_angle(self, range_index, range_len):
         """ Get the angle of a particular element in the LiDAR data and transform it into an appropriate steering angle
         """
+        # print(f"range_index:{range_index}")
+        # print(f"range_len:{range_len}")
+        # print(f"self.radians_per_elem:{self.radians_per_elem}")
+
+        # range_index -> best point ridar index
+        # best point에 대한 차체의 각도 for steering
         lidar_angle = (range_index - (range_len / 2)) * self.radians_per_elem
+
+        # For ackerman steering model
         steering_angle = lidar_angle / 2
+
         return steering_angle
 
     def process_lidar(self, ranges):
