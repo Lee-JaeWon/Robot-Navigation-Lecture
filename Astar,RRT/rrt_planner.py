@@ -73,8 +73,10 @@ class RRTPlanner(object):
         """
         #TODO: make sure you're not exceeding the row and columns bounds
         # x must be in {0, cols-1} and y must be in {0, rows -1}
-        x = random.randint(0, self.world.shape[1]-1)
-        y = random.randint(0, self.world.shape[0]-1)
+
+        # Random 값 생성
+        x = random.randint(0, self.world.shape[1]-1) # {0, cols-1}
+        y = random.randint(0, self.world.shape[0]-1) # {0, rows-1}
         return State(x, y, None)
            
 
@@ -123,6 +125,8 @@ class RRTPlanner(object):
         #TODO: populate x and y properly according to the description above.
         #Note: x and y are integers and they should be in {0, ..., cols -1}
         # and {0, ..., rows -1} respectively
+
+        # 랜덤 점까지의 거리 계산
         distance_rand_nearest = sqrt((s_rand.x - s_nearest.x)**2 + (s_rand.y - s_nearest.y)**2)
         
         # rand(무작위 샘플점)을 발생시킨 후, 가장 가까운 노드 near를 찾는다.
@@ -131,10 +135,10 @@ class RRTPlanner(object):
         if (distance_rand_nearest <= max_radius): # 최대 도달거리보다 작으면 랜덤 값 그대로 선정
             x = s_rand.x
             y = s_rand.y
-        else: # 최대 도달거리보다 크면
-            t = max_radius / distance_rand_nearest
-            x = int((1-t)*s_nearest.x + t*s_rand.x)
-            y = int((1-t)*s_nearest.y + t*s_rand.y)
+        else: # 최대 도달거리보다 크면 일정비율로 줄여서 적용
+            t = max_radius / distance_rand_nearest # 최대거리/계산거리 계산
+            x = int((1-t)*s_nearest.x + t*s_rand.x) # 비율에 따른 거리로 x,
+            y = int((1-t)*s_nearest.y + t*s_rand.y) # y 설정
         
         
         s_new = State(x, y, s_nearest)
@@ -211,8 +215,8 @@ class RRTPlanner(object):
                     break
                 
                 # TODO:plot the new node and edge
-                cv2.circle(img, (s_new.x, s_new.y), 3, (255,0,0))
-                cv2.line(img, (s_nearest.x, s_nearest.y), (s_new.x, s_new.y), (255,0,0))
+                cv2.circle(img, (s_new.x, s_new.y), 3, (255,0,0)) # 노드 표현
+                cv2.line(img, (s_nearest.x, s_nearest.y), (s_new.x, s_new.y), (255,0,0)) # 선 표현
 
             # Keep showing the image for a bit even
             # if we don't add a new node and edge
