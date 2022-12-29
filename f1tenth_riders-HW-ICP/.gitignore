@@ -1,0 +1,18 @@
+build/
+gym/f110_gym.egg-info
+__pycache__
+*.pyc
+.DS_Store
+.vscode/
+gym/f110_gym/unittest/maps/
+gym/f110_gym/unittest/centerline/
+docs/_build/
+*.swp
+
+# Additional files
+.env
+venv/**/*
+challengeproject.tar
+challengeproject.tar.gz
+.idea/
+.riders-token

@@ -1,0 +1,17 @@
+stages:
+  - build
+
+build:
+  stage: build
+  tags:
+    - shell
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH != "master"'
+      when: manual
+  script:
+    - export CI_COMMIT_TAG=${CI_COMMIT_TAG:-"latest"}
+    - docker login -u "$GITLAB_DEPLOY_USERNAME" -p "$GITLAB_DEPLOY_ACCESS_KEY" registry.gitlab.com
+    - docker-compose build vnc && docker-compose push vnc
+    - docker-compose build roscore && docker-compose push roscore
+    - docker-compose build bridge && docker-compose push bridge

@@ -1,0 +1,2 @@
+# add your dependencies here as you'd like
+Pillow==8.3.2
